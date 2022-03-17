@@ -1,17 +1,17 @@
 #include <Arduino.h>
 #include "adc.h"
 #include "pwm.h"
-//hi
-void setup() {
-  // put your setup code here, to run once:
-}
 
-void loop() {
-  // put your main code here, to run repeatedly:
-}
 
 int main(){
   initADC();
+  initPWMTimer3();
+  initPWMTimer4();
+
+
+  while(1){
+    changeDutyCycle(returnVoltage());
+  }
 
 
 return 0;

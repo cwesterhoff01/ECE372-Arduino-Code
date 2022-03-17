@@ -36,12 +36,12 @@ void initADC(){
 }
 
 int returnVoltage(){
-    unsigned int result = 0;
+    int result = 0;
     float voltage = 0;
 
     result = ADCL;
     result += ((unsigned int) ADCH)<< 8;
     voltage = result * (4.99/1024.0);
 
-    return voltage;
+    return result;
 }

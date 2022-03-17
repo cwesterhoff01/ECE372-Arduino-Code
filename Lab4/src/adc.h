@@ -2,5 +2,5 @@
 #define ADC_H
 
 void initADC();
-
+int returnVoltage();
 #endif
