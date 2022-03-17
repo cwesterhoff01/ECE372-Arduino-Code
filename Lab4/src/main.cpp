@@ -1,9 +1,8 @@
 #include <Arduino.h>
-//hi
-void setup() {
-  // put your setup code here, to run once:
-}
+#include "pwm.h"
+#include "adc.h"
 
-void loop() {
-  // put your main code here, to run repeatedly:
+int main(){
+  while(1){
+  }
 }
