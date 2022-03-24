@@ -16,6 +16,7 @@ void initADC(){
 
     //Set auto trigger source selection
     //Use free-running mode ADTS[2:0] = 0b'000
+    //Starting a new conversion each time the last one is finished. Do not need to retrigger the ADC
     ADCSRB &= ~((1<< ADTS2) | (1 << ADTS1) | (1 << ADTS0));
 
     //Enable ADC and enable auto-triggering
@@ -27,7 +28,7 @@ void initADC(){
     //Takes 13 ADC clock cycles for conversion
     ADCSRA |= (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
 
-    //Disable ADC0 pin digital input - A0
+    //Disable ADC0 pin digital input - A0. To prevent bad readings
     DIDR0 |= (1 << ADC0D);
 
     //Start first ADC conversion. Starts first sample
@@ -37,11 +38,11 @@ void initADC(){
 
 int returnVoltage(){
     int result = 0;
-    float voltage = 0;
 
+    //Combines the ADCL and ADCH to an integer result.
     result = ADCL;
     result += ((unsigned int) ADCH)<< 8;
-    voltage = result * (4.99/1024.0);
 
+    //Returns result. This will be used for determining the duty cycle
     return result;
 }
