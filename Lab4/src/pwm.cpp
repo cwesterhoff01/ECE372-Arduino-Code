@@ -46,13 +46,13 @@ void initPWMTimer4(){ //Counter Clockwise (Inverting Fast Pwm 10-bit)
 void changeDutyCycle(int digitalValue){
     if(digitalValue < 0b1000000000){
         //clockwise
-        OCR3A = 1023 - (2 * digitalValue);
-        OCR4A = 1023;
+        OCR3A = 1023 - (2 * digitalValue); //To slow down the clockwise speed, we want to go from 1023 to 0
+        OCR4A = 1023; //OCR4A is the counter clockwise. We want it to be "0"
     }
     else if(digitalValue > 0b1000000000){
         //counterclockwise
-        OCR3A = 0;
-        OCR4A = 1023 - (2 * (digitalValue - 512));
+        OCR3A = 0; 
+        OCR4A = 1023 - (2 * (digitalValue - 512)); // Subtract 512 since the digitalValue at this point is 512
     }
     else{
         //Zero
