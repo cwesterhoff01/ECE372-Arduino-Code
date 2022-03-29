@@ -13,8 +13,9 @@
   PORTD |= (1 << PORTD0);
     //enable the switch for interup
 
-  EICRA |= (1 << ISC01);
-  EICRA &= ~(1 << ISC00);
+//Table 15-1 Any edge of interrupt
+  EICRA |= (1 << ISC00);
+  EICRA &= ~(1 << ISC01);
   EIMSK |= (1 << INT0);
 
 }

@@ -44,15 +44,6 @@ int main(){
     case DEBOUNCE_PRESS: //Debouncing the signal when user pressed the switch
       delayMs(1);
       currentState = WAIT_RELEASE;
-        // showing use of serial print to the serial monitor for debugging only
-    // set baud rate for the serial port print function
-    Serial.begin(9600);
-
-    // Use Arduino library to print to serial port
-    Serial.println ("Hello World I am here");
-    Serial.println ("I am still here");
-    // flush out buffer so that entire string will print
-    Serial.flush();
       break;
     case WAIT_RELEASE: //Waiting for user to release the switch
       break;
