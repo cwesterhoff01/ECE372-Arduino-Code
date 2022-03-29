@@ -5,7 +5,7 @@
 #include "switch.h"
 #include <avr/io.h>
 
-  void initSwitchPB3(){
+  void initSwitchD0(){
       // set direction for input
   DDRD &= ~(1 << DDD0);
 
