@@ -6,5 +6,6 @@
 
 void initPortC();
 void selectLED(int num);
+void start10();
 
 #endif

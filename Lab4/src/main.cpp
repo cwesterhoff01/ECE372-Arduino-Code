@@ -3,6 +3,7 @@
 #include "pwm.h"
 #include "timer.h"
 #include "switch.h"
+#include "sevensegment.h"
 
 typedef enum {
   WAIT_PRESS,
@@ -21,6 +22,7 @@ int main(){
   initPWMTimer4();
   initTimer0();
   initTimer1();
+  initPortC();
 
   sei();
   while(1){
@@ -31,8 +33,7 @@ int main(){
       //Turn motor off
       changeDutyCycle(512);
       //Countdown
-	  for(int i = 9; i >= 0; i = i - 1){
-	  }
+	  start10();
 	  killMotor = 0;
       //Once countdown is finish change back killMotor to zero
     }

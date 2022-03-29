@@ -1,5 +1,6 @@
 #include <avr/io.h>
 #include "sevensegment.h"
+#include "timer.h"
 
 void initPortC(){
     //PC0 = A, PC1 = B, PC2 = C, PC3 = D, PC4 = E, PC6 = F, PC7 = G, PC5 = DP
@@ -66,6 +67,14 @@ void selectLED(int num){
             break;
     }
 }
+
+void start10(){
+    for(int i = 9; i >= -1; i--){
+        selectLED(i);
+        delayMs(1000);
+    } 
+}
+
 
 
 // void initShift(){
