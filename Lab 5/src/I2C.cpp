@@ -1,7 +1,7 @@
 #include "I2C.h"
 #include <avr/io.h>
 
-# define wait_for_completion while(!(TWCR & (1 << TWINT)));
+#define wait_for_completion while(!(TWCR & (1 << TWINT)));
 
 void initI2C(){
     PRR0 &= ~(1 << PRTWI); //Wake up I2C module on AT2560 
@@ -11,15 +11,46 @@ void initI2C(){
     TWBR = 0xC6; // bit rate generator = 10k (TWBR = 198)
     TWCR = (1 << TWEN); // enable two wire interface
 }
-void startI2C_Trans(unsigned char SLA){
-
+void startI2C_Trans(unsigned char SLA){ 
+    // this function initiates a start condition and calls slave device with SLA
+    TWCR = (1<<TWINT)|(1<<TWSTA)|(1<<TWEN); // clear TWINT, intiate a start condition and enable
+    wait_for_completion;
+    TWDR = (SLA << 1); // slave address + write bit '0'
+    TWCR = (1<<TWINT)|(1<<TWEN);  // trigger action:clear flag and enable TWI
+    wait_for_completion;
 }
-void stopI2C_Trans(){
+void stopI2C_Trans() {
+  // this function sends a stop condition to stop I2C transmission
 
+  TWCR = (1<<TWINT)|(1<<TWEN)|(1<<TWSTO); //trigger action:  send stop condition
+}
+void write(unsigned char data){
+  // this function loads the data passed into the I2C data register and transmits
+  TWDR = data; //load data into TWDR register
+  TWCR = (1<<TWINT)|(1<<TWEN);  // trigger action:  clear flag and enable TWI
+  wait_for_completion;
 }
 void read_from(unsigned char SLA, unsigned char MEMADDRESS){
+  // this function sets up reading from SLA at the SLA MEMADDRESS 
 
+  startI2C_Trans(SLA);
+ 
+  write(MEMADDRESS);
+  
+  TWCR = (1<<TWINT)|(1<<TWSTA)|(1<<TWEN); // restart to switch to read mode
+  wait_for_completion;
+  TWDR = (SLA << 1) | 0x01; // 7 bit address for slave plus read bit
+  TWCR = (1 << TWINT) | (1 << TWEN)| (1 << TWEA);// trigger with master sending ack
+  wait_for_completion;
+  TWCR = (1<< TWINT) | (1 << TWEN);  // master can send a nack now
+  wait_for_completion;
+  TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTO); // Stop condition
+// after this function is executed the TWDR register has the data from SLA that Master wants to read
 }
-unsigned char read_data(){
+  
+unsigned char read_data() // Returns the last byte  from the data register
+{
 
+  return TWDR;
 }
+  
