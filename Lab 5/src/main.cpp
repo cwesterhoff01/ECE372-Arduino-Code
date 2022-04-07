@@ -100,6 +100,4 @@ int main () {
 
 // _delay_ms(2000); // delay for 2 sec to display "ALL"
 
-
-  }  
 }
