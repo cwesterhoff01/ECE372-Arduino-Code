@@ -1,3 +1,11 @@
+/*
+Lab Section B Group #1
+Names: Elizabeth Connacher, Jesse Koontz, Chris Westerhoff, Jason Zhang
+Lab 4
+
+*/
+
+
 #include <Arduino.h>
 #include "adc.h"
 #include "pwm.h"
@@ -17,6 +25,7 @@ volatile stateType currentState = WAIT_PRESS;
 int killMotor = 0;
 
 int main(){
+  //Initialize components
   initADC();
   initSwitchD0();
   initPWMTimer3();
@@ -25,6 +34,7 @@ int main(){
   initTimer1();
   initPortC();
 
+  //turn on global sei
   sei();
   while(1){
     if(killMotor == 0){
@@ -35,6 +45,7 @@ int main(){
       changeDutyCycle(512);
       //Countdown
 	  start10();
+    //turns motor back on
 	  killMotor = 0;
       //Once countdown is finish change back killMotor to zero
     }
@@ -66,7 +77,7 @@ ISR(INT0_vect){
     currentState = DEBOUNCE_PRESS;
   }
   else if(currentState == WAIT_RELEASE){
-    //do stuff
+    //stops motor
     killMotor = 1;
     currentState = DEBOUNCE_RELEASE;
   }

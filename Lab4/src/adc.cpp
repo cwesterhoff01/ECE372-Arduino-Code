@@ -36,6 +36,7 @@ void initADC(){
 
 }
 
+//returns the 10 bits to be given to the PWM for the digital value
 int returnVoltage(){
     int result = 0;
 
