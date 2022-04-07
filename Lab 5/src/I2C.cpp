@@ -9,9 +9,7 @@ void initI2C(){
     TWSR &= ~(1 << TWPS1); // prescaler = 1
     //TWBR = ((CPU Clock frequency)/(SCLfrequency) - 16)/(2*(4)^TWPS)
     TWBR = 0xC6; // bit rate generator = 10k (TWBR = 198)
-}
-void initI2C(){
-
+    TWCR = (1 << TWEN); // enable two wire interface
 }
 void startI2C_Trans(unsigned char SLA){
 
