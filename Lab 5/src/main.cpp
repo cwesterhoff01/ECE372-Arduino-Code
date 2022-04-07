@@ -46,6 +46,6 @@ write_execute(0x07, 0b01000010); // row 7 LEDS
 write_execute(0x08, 0b01000010); // row 8 LEDS
 
 _delay_ms(2000); // delay for 2 sec to display "ALL"
-}
+
 
 }
