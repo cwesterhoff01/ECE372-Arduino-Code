@@ -6,6 +6,8 @@
 #include <avr/interrupt.h>
 #include <avr/io.h>
 #include "I2C.h"
+#include "timer.h"
+#include "switch.h"
 
 #define SLA 0x68  // MPU_6050 address with PIN AD0 grounded
 #define PWR_MGMT  0x6B
@@ -17,6 +19,20 @@
 #define SL_MEMA_ZAX_HIGH  0x3F
 #define SL_MEMA_ZAX_LOW   0x40
 
+typedef enum {
+  WAIT_PRESS,
+  DEBOUNCE_PRESS,
+  WAIT_RELEASE,
+  DEBOUNCE_RELEASE
+} stateType;
+
+typedef enum {
+  FROWN,
+  SMILE
+} faceType;
+
+volatile stateType currentState = WAIT_PRESS;
+volatile faceType faceState = FROWN; 
 
 int main () {
 
@@ -33,10 +49,58 @@ int main () {
   write(WAKEUP);
   stopI2C_Trans();
 
-  while (1) {
- _delay_ms(1000);
+  initSwitchPB3();
 
+  SPI_MASTER_Init(); // initialize SPI module and set the data rate
 
+// initialize 8 x 8 LED array (info from MAX7219 datasheet)
+write_execute(0x0A, 0x08);  // brightness control
+write_execute(0x0B, 0x07); // scanning all rows and columns
+write_execute(0x0C,0x01); // set shutdown register to normal operation (0x01)
+write_execute(0x0F, 0x00); // display test register - set to normal operation (0x01)
+  while(true){
+     _delay_ms(1000);
+    switch(currentState){
+        case WAIT_PRESS: //Waiting for user to press the switch
+        break;
+      case DEBOUNCE_PRESS: //Debouncing the signal when user pressed the switch
+        delayMs(1);
+        currentState = WAIT_RELEASE;
+        break;
+      case WAIT_RELEASE: //Waiting for user to release the switch
+        break;
+      case DEBOUNCE_RELEASE: //Debouncing the signal when user let go of the switch
+        delayMs(1);
+        currentState = WAIT_PRESS;
+        break;
+      }
+    switch(faceState){
+      case FROWN:
+        //SAD face
+        write_execute(0x01, 0b00000000); // all LEDS in Row 1 are off
+        write_execute(0x02, 0b00100100); // row 2 LEDS 
+        write_execute(0x03, 0b00000000); // row 3 LEDS
+        write_execute(0x04, 0b00000000); // row 4 LEDS
+        write_execute(0x05, 0b00000000); // row 5 LEDS
+        write_execute(0x06, 0b01111110); // row 6 LEDS
+        write_execute(0x07, 0b01000010); // row 7 LEDS
+        write_execute(0x08, 0b01000010); // row 8 LEDS
+      break;
+      case SMILE:
+        //Happy Face
+        write_execute(0x01, 0b00000000); // all LEDS in Row 1 are off
+        write_execute(0x02, 0b00100100); // row 2 LEDS 
+        write_execute(0x03, 0b00000000); // row 3 LEDS
+        write_execute(0x04, 0b01000010); // row 4 LEDS
+        write_execute(0x05, 0b01000010); // row 5 LEDS
+        write_execute(0x06, 0b01111110); // row 6 LEDS
+        write_execute(0x07, 0b00000000); // row 7 LEDS
+        write_execute(0x08, 0b00000000); // row 8 LEDS
+      break;
+
+    }
+
+  // Accelerometer 
   X_val= read_data(); // read upper value
  
   read_from(SLA,SL_MEMA_XAX_LOW);
@@ -63,41 +127,22 @@ int main () {
   Serial.println(Z_val);
 
   stopI2C_Trans();
+
+  if(abs(Y_val) > 10000 || abs(Z_val) > 10000){
+    faceState = FROWN;
+  }
+  else{
+    faceState = SMILE;
+  }
+
+  }
 }
-
-  //SPI_MASTER_Init(); // initialize SPI module and set the data rate
-
-// // initialize 8 x 8 LED array (info from MAX7219 datasheet)
-// write_execute(0x0A, 0x08);  // brightness control
-// write_execute(0x0B, 0x07); // scanning all rows and columns
-// write_execute(0x0C,0x01); // set shutdown register to normal operation (0x01)
-// write_execute(0x0F, 0x00); // display test register - set to normal operation (0x01)
-
-// while(1){
-
-// //Happy Face
-// write_execute(0x01, 0b00000000); // all LEDS in Row 1 are off
-// write_execute(0x02, 0b00100100); // row 2 LEDS 
-// write_execute(0x03, 0b00000000); // row 3 LEDS
-// write_execute(0x04, 0b01000010); // row 4 LEDS
-// write_execute(0x05, 0b01000010); // row 5 LEDS
-// write_execute(0x06, 0b01111110); // row 6 LEDS
-// write_execute(0x07, 0b00000000); // row 7 LEDS
-// write_execute(0x08, 0b00000000); // row 8 LEDS
-
-// _delay_ms(1000);  // delay for 1 s to display "HI"
-
-// //SAD face
-
-// write_execute(0x01, 0b00000000); // all LEDS in Row 1 are off
-// write_execute(0x02, 0b00100100); // row 2 LEDS 
-// write_execute(0x03, 0b00000000); // row 3 LEDS
-// write_execute(0x04, 0b00000000); // row 4 LEDS
-// write_execute(0x05, 0b00000000); // row 5 LEDS
-// write_execute(0x06, 0b01111110); // row 6 LEDS
-// write_execute(0x07, 0b01000010); // row 7 LEDS
-// write_execute(0x08, 0b01000010); // row 8 LEDS
-
-// _delay_ms(2000); // delay for 2 sec to display "ALL"
-
+//ISR
+ISR(PCINT0_vect){
+  if(currentState == WAIT_PRESS){
+    currentState = DEBOUNCE_PRESS;
+  }
+  else if(currentState == WAIT_RELEASE){
+    currentState = DEBOUNCE_RELEASE;
+  }
 }
