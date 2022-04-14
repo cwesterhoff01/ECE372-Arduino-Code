@@ -33,8 +33,8 @@ typedef enum {
 } faceType;
 
 volatile stateType currentState = WAIT_PRESS;
-volatile faceType faceState = FROWN; 
-volatile boolean switchBOOL = false;
+volatile faceType faceState = SMILE; 
+volatile boolean alarm = false;
 
 int main () {
 
@@ -42,7 +42,6 @@ int main () {
   sei();
 
   int sound = 0;
-  boolean alarm = true;
 
   signed int X_val = 0;
   signed int Y_val = 0;
@@ -106,11 +105,9 @@ write_execute(0x0F, 0x00); // display test register - set to normal operation (0
         write_execute(0x06, 0b01111110); // row 6 LEDS
         write_execute(0x07, 0b00000000); // row 7 LEDS
         write_execute(0x08, 0b00000000); // row 8 LEDS
-        alarm = false;
       break;
 
     }
-if(!switchBOOL){
   if(alarm == true){
     changeDutyCycle(sound);
     sound = sound + 20;
@@ -118,10 +115,6 @@ if(!switchBOOL){
   else{
    changeDutyCycle(0);
   }
-}
-else{
-  changeDutyCycle(0);
-}
 
   // Accelerometer 
   X_val= read_data(); // read upper value
@@ -166,11 +159,11 @@ ISR(PCINT0_vect){
     currentState = DEBOUNCE_PRESS;
   }
   else if(currentState == WAIT_RELEASE){
-    if(switchBOOL == true){
-      switchBOOL = false;
+    if(alarm == true){
+      alarm = false;
     }
     else {
-      switchBOOL = true;
+      alarm = true;
     }
     currentState = DEBOUNCE_RELEASE;
   }
