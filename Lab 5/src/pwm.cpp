@@ -24,40 +24,17 @@ void initPWMTimer3()  { //Clockwise (Fast pwm 10-bit)
 
 }
 
-void initPWMTimer4(){ //Counter Clockwise (Inverting Fast Pwm 10-bit)
-    //setting data direction for pin 6
-    DDRH |= (1 << DDH3);
-    
-    TCCR4A |= (1 << WGM41) | (1 <<WGM40);
-    TCCR4B |= (1 << WGM42);
-    TCCR4B &= ~(1 << WGM43);
+void changeDutyCycle(int turnOn){
 
-    //Setting up non inverting mode
-    TCCR4A |= (1 << COM4A1) | (1 << COM4A0);
-
-    //Setting prescalar to 1
-    TCCR4B |= (1 << CS40);
-    TCCR4B &= ~((1 << CS41) | (1 << CS42));
-    
-    //Setting duty cycle
-    OCR4A = 1023; //0% duty cycle [Temporary Value]
-}
-
-void changeDutyCycle(int digitalValue){
-    if(digitalValue < 0b1000000000){
-        //clockwise
-        OCR3A = 1023 - (2 * digitalValue); //To slow down the clockwise speed, we want to go from 1023 to 0
-        OCR4A = 1023; //OCR4A is the counter clockwise. We want it to be "0"
+    //Noise on
+    if(turnOn){
+        OCR3A = 512;
     }
-    else if(digitalValue > 0b1000000000){
-        //counterclockwise
-        OCR3A = 0; 
-        OCR4A = 1023 - (2 * (digitalValue - 512)); // Subtract 512 since the digitalValue at this point is 512
-    }
+    //Noise off
     else{
-        //Zero
         OCR3A = 0;
-        OCR4A = 1023;
     }
+    
+
     
 }
