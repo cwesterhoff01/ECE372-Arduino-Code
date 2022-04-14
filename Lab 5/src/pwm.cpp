@@ -16,25 +16,15 @@ void initPWMTimer3()  { //Clockwise (Fast pwm 10-bit)
     TCCR3A &= ~(1 << COM3A0);
 
     //Setting prescalar to 1
-    TCCR3B |= (1 << CS30);
-    TCCR3B &= ~((1 << CS31) | (1 << CS32));
+    TCCR3B |= (1 << CS30) | (1 << CS31);
+    TCCR3B &= ~((1 << CS32));
     
     //Setting duty cycle
     OCR3A = 0; //0% duty cycle [Temporary Value]
 
 }
 
-void changeDutyCycle(int turnOn){
-
-    //Noise on
-    if(turnOn){
-        OCR3A = 512;
-    }
-    //Noise off
-    else{
-        OCR3A = 0;
-    }
-    
-
-    
+void changeDutyCycle(int noise){
+    noise = noise % 1020;
+    OCR3A = noise;
 }
