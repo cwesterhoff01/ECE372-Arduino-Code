@@ -2,8 +2,6 @@
 #include <DHT.h>
 #include <DHT_U.h>
 #include <Arduino.h>
-#include <timer.h>
-#include <lcd.h>
 #define DHTPIN 2     // Digital pin connected to the DHT sensor 
 //Pin #2 on arduino board
 
