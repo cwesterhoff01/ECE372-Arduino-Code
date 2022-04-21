@@ -18,11 +18,6 @@ DHT_Unified dht(DHTPIN, DHTTYPE);
 
 uint32_t delayMS;
 
-int main(){
-  Serial.begin(9600);
-  Serial.println("Start");
-  return 0;
-}
 
 void setup() {
   Serial.begin(9600);
@@ -52,6 +47,7 @@ void setup() {
   Serial.print  (F("Resolution:  ")); Serial.print(sensor.resolution); Serial.println(F("%"));
   Serial.println(F("------------------------------------"));
   // Set delay between sensor readings based on sensor details.
+  Serial.flush();
   delayMS = sensor.min_delay / 1000;
 }
 
@@ -78,5 +74,6 @@ void loop() {
     Serial.print(F("Humidity: "));
     Serial.print(event.relative_humidity);
     Serial.println(F("%"));
+    Serial.flush();
   }
 }
