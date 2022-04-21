@@ -24,7 +24,11 @@ void initPWMTimer3()  { //Clockwise (Fast pwm 10-bit)
 
 }
 
-void changeDutyCycle(int noise){
-    //noise = noise % 1020;
-    OCR3A = noise;
+void changeDutyCycle(int turnOn){
+   // turnOn = (turnOn % 1020);
+    OCR3A = turnOn;
+
+    
+
+    
 }
