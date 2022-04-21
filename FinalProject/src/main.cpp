@@ -20,9 +20,23 @@ DHT_Unified dht(DHTPIN, DHTTYPE);
 uint32_t delayMS;
 
 
+
+
 void setup() {
+  
+
+
+  initLCD();
+  sei(); // Enable global interrupts.
+  moveCursor(0, 0); // moves the cursor to 0,0 position
+  writeString("Current mode: ");
+  moveCursor(1, 0);  // moves the cursor to 1,0 position
+
+
+
   Serial.begin(9600);
   // Initialize device.
+  writeString("Is this thing on?");
   dht.begin();
   Serial.println(F("DHTxx Unified Sensor Example"));
   // Print temperature sensor details.
@@ -59,12 +73,12 @@ void setup() {
     sensors_event_t event;
     dht.temperature().getEvent(&event);
     if (isnan(event.temperature)) {
-      Serial.println(F("Error reading temperature!"));
+      writeString("Error reading temperature!");
     }
     else {
-      Serial.print(F("Temperature: "));
-      Serial.print(event.temperature);
-      Serial.println(F("°C"));
+      writeString("Temperature: ");
+      //writeString(event.temperature);
+      writeString("°C");
     }
     // Get humidity event and print its value.
     dht.humidity().getEvent(&event);
