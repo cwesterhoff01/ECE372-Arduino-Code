@@ -1,5 +1,9 @@
-// Example code using SPI transmission to write to 8x8 LED array through MAxim 7219 chip
-// The 8x8 LED array is part number 1038AS and it is interfaced with the MAX7219CNG chip
+/*
+Lab Section B Group #1
+Names: Elizabeth Connacher, Jesse Koontz, Chris Westerhoff, Jason Zhang
+Lab 4
+
+*/
 
 #include <Arduino.h>
 #include "SPI.h"
@@ -10,6 +14,7 @@
 #include "switch.h"
 #include "pwm.h"
 
+//These are defined values from registers for dealing with the accelerometer
 #define SLA 0x68  // MPU_6050 address with PIN AD0 grounded
 #define PWR_MGMT  0x6B
 #define WAKEUP 0x00
@@ -20,6 +25,7 @@
 #define SL_MEMA_ZAX_HIGH  0x3F
 #define SL_MEMA_ZAX_LOW   0x40
 
+//Enums for the button states
 typedef enum {
   WAIT_PRESS,
   DEBOUNCE_PRESS,
@@ -27,6 +33,7 @@ typedef enum {
   DEBOUNCE_RELEASE
 } stateType;
 
+//Enum for the face states
 typedef enum {
   FROWN,
   SMILE
@@ -47,6 +54,7 @@ int main () {
   signed int Y_val = 0;
   signed int Z_val = 0;
 
+  //Initialize componenets and setup
   initI2C();
   startI2C_Trans(SLA);
   write(PWR_MGMT);
@@ -108,9 +116,11 @@ write_execute(0x0F, 0x00); // display test register - set to normal operation (0
       break;
 
     }
+    //If the alarm is on, we can change the duty cycle sound
   if(alarm == true){
+    _delay_ms(100);
     changeDutyCycle(sound);
-    sound = sound + 20;
+    sound = sound + 2500;
   }
   else{
    changeDutyCycle(0);
@@ -135,6 +145,7 @@ write_execute(0x0F, 0x00); // display test register - set to normal operation (0
   Z_val = (Z_val << 8 )| read_data(); // append lower value
     read_from(SLA,SL_MEMA_ZAX_HIGH);
   
+  //Prints out the accelerometer data
   Serial.print("X: ");
   Serial.print(X_val);
   Serial.print(", Y: ");
@@ -144,6 +155,7 @@ write_execute(0x0F, 0x00); // display test register - set to normal operation (0
 
   stopI2C_Trans();
 
+  //Determines face state based on accelerometer position and rotation
   if(abs(Y_val) > 10000 || abs(Z_val) > 10000){
     faceState = FROWN;
   }
@@ -159,6 +171,7 @@ ISR(PCINT0_vect){
     currentState = DEBOUNCE_PRESS;
   }
   else if(currentState == WAIT_RELEASE){
+    //If in wait release state and alarm is on, we turn off the alarm. Else turn alarm on
     if(alarm == true){
       alarm = false;
     }

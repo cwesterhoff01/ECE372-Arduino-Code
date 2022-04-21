@@ -1,6 +1,7 @@
 #include "I2C.h"
 #include <avr/io.h>
 
+//Defining wait for completion to be essentially waiting for the flag to be triggered
 #define wait_for_completion while(!(TWCR & (1 << TWINT)));
 
 void initI2C(){
@@ -42,7 +43,7 @@ void read_from(unsigned char SLA, unsigned char MEMADDRESS){
   TWDR = (SLA << 1) | 0x01; // 7 bit address for slave plus read bit
   TWCR = (1 << TWINT) | (1 << TWEN)| (1 << TWEA);// trigger with master sending ack
   wait_for_completion;
-  TWCR = (1<< TWINT) | (1 << TWEN);  // master can send a nack now
+  TWCR = (1<< TWINT) | (1 << TWEN);  // master sends nack
   wait_for_completion;
   TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTO); // Stop condition
 // after this function is executed the TWDR register has the data from SLA that Master wants to read
