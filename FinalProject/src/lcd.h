@@ -1,7 +1,7 @@
 // Author:         
 // Net ID:         
 // Date:           
-// Assignment:     Lab 3
+// Assignment:     Lab 3 fix
 //----------------------------------------------------------------------//
 
 #ifndef LCD_H
