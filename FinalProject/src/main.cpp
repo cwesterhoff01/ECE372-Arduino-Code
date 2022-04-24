@@ -19,10 +19,31 @@ DHT_Unified dht(DHTPIN, DHTTYPE);
 
 uint32_t delayMS;
 
+//Enum for the emoji states
+typedef enum {
+  HOT,
+  HUMID,
+  SMILE
+} emojiType;
+
+volatile emojiType faceState = SMILE; 
+
 
 void setup() {
+  
+
+
+  initLCD();
+  sei(); // Enable global interrupts.
+  moveCursor(0, 0); // moves the cursor to 0,0 position
+  writeString("Current mode: ");
+  moveCursor(1, 0);  // moves the cursor to 1,0 position
+
+
+
   Serial.begin(9600);
   // Initialize device.
+  writeString("Is this thing on?");
   dht.begin();
   Serial.println(F("DHTxx Unified Sensor Example"));
   // Print temperature sensor details.
@@ -59,12 +80,12 @@ void setup() {
     sensors_event_t event;
     dht.temperature().getEvent(&event);
     if (isnan(event.temperature)) {
-      Serial.println(F("Error reading temperature!"));
+      writeString("Error reading temperature!");
     }
     else {
-      Serial.print(F("Temperature: "));
-      Serial.print(event.temperature);
-      Serial.println(F("°C"));
+      writeString("Temperature: ");
+      //writeString(event.temperature);
+      writeString("°C");
     }
     // Get humidity event and print its value.
     dht.humidity().getEvent(&event);
@@ -77,4 +98,42 @@ void setup() {
       Serial.println(F("%"));
       Serial.flush();
     }
+
+
+    //switch picture
+    // switch(emojiType){
+    //   case HOT:
+    //     //sun emoji
+    //     write_execute(0x01, 0b10010001); // row 1 LEDS
+    //     write_execute(0x02, 0b01001010); // row 2 LEDS 
+    //     write_execute(0x03, 0b00111100); // row 3 LEDS
+    //     write_execute(0x04, 0b10111110); // row 4 LEDS
+    //     write_execute(0x05, 0b01111101); // row 5 LEDS
+    //     write_execute(0x06, 0b00111100); // row 6 LEDS
+    //     write_execute(0x07, 0b01010010); // row 7 LEDS
+    //     write_execute(0x08, 0b10001001); // row 8 LEDS
+    //   break;
+    //   case HUMID:
+    //     //raindrop emoji
+    //     write_execute(0x01, 0b00000000); // row 1 LEDS
+    //     write_execute(0x02, 0b00010000); // row 2 LEDS 
+    //     write_execute(0x03, 0b00011000); // row 3 LEDS
+    //     write_execute(0x04, 0b00111100); // row 4 LEDS
+    //     write_execute(0x05, 0b01111110); // row 5 LEDS
+    //     write_execute(0x06, 0b01111110); // row 6 LEDS
+    //     write_execute(0x07, 0b00111100); // row 7 LEDS
+    //     write_execute(0x08, 0b00000000); // row 8 LEDS
+    //   break;
+    //   case SMILE:
+    //     //smiley face
+    //     write_execute(0x01, 0b00000000); // row 1 LEDS
+    //     write_execute(0x02, 0b00100100); // row 2 LEDS 
+    //     write_execute(0x03, 0b00100100); // row 3 LEDS
+    //     write_execute(0x04, 0b00100100); // row 4 LEDS
+    //     write_execute(0x05, 0b10000001); // row 5 LEDS
+    //     write_execute(0x06, 0b01000010); // row 6 LEDS
+    //     write_execute(0x07, 0b00111100); // row 7 LEDS
+    //     write_execute(0x08, 0b00000000); // row 8 LEDS
+    //   break;
+    // }
   }
