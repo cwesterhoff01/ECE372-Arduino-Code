@@ -94,14 +94,6 @@ void setup() {
     dht.temperature().getEvent(&event);
     if (isnan(event.temperature)) {
       Serial.println("Error reading temperature!");
-      moveCursor(0, 0); // moves the cursor to 0,0 position
-      temp = 83.4;
-      int temp1 = temp * 10;
-      sprintf(output, "%d", temp1 / 10);
-      writeString(output);
-      sprintf(output, "%d", temp1 % 10);
-      writeString(".");
-      writeString(output);
     }
     else {
       Serial.print("Temperature: ");
@@ -109,6 +101,15 @@ void setup() {
       temp = (double)event.temperature;
       Serial.print(temp);
       Serial.println("°C");
+      moveCursor(0,0);
+      int temp1 = temp * 10;
+      sprintf(output, "%d", temp1 / 10);
+      writeString("Temp: ");
+      writeString(output);
+      sprintf(output, "%d", temp1 % 10);
+      writeString(".");
+      writeString(output);
+      writeString(" C");
 
     }
     // Get humidity event and print its value.
@@ -124,7 +125,14 @@ void setup() {
       Serial.flush();
 
       moveCursor(1, 0);  // moves the cursor to 1,0 position
-    
+      int temp2 = humidity * 10;
+      writeString("Humidity: ");
+      sprintf(output, "%d", temp2 / 10);
+      writeString(output);
+      sprintf(output, "%d", temp2 % 10);
+      writeString(".");
+      writeString(output);
+      writeString("%");
     }
 
     if (temp > 25.0){
