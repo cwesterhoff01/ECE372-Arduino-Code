@@ -181,14 +181,22 @@ void setup() {
         write_execute(0x08, 0b00000000); // row 8 LEDS
       break;
   }
+  int tempDuty = 0;
+  int humDuty = 0;
     if (temp > 25){
-      changeDutyCycle(400 + (temp/80.0) * 100);
+      tempDuty = (300 + (temp/80.0) * 723);
     } else{
       if(humidity > 30){
-      changeDutyCycle(400 + ((humidity/100.0) *200));
-      } else {
-      changeDutyCycle(0);
+      humDuty = 300 + (humidity/100.0) * 723;
       }
     }
-    
+    if(humDuty == 0 && tempDuty == 0){
+        changeDutyCycle(0);
+    }
+    else if(humDuty > tempDuty){
+      changeDutyCycle(humDuty);
+    }
+    else{
+      changeDutyCycle(tempDuty);
+    }
   }
