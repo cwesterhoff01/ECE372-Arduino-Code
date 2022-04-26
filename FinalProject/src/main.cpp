@@ -5,6 +5,7 @@
 #include <timer.h>
 #include <lcd.h>
 #include <SPI.h>
+#include <pwm.h>
 #define DHTPIN 2     // Digital pin connected to the DHT sensor 
 //Pin #2 on arduino board
 
@@ -32,6 +33,7 @@ volatile emojiType faceState = SMILE;
 
 void setup() {
   
+  initPWMTimer3();
 
   SPI_MASTER_Init(); // initialize SPI module and set the data rate
   // initialize 8 x 8 LED array (info from MAX7219 datasheet)
@@ -80,15 +82,53 @@ void setup() {
   Serial.flush();
   delayMS = sensor.min_delay / 1000;
 
-  
 
 }
 
  void loop() {
+   double temp;
+   double humidity;
     // Delay between measurements.
     delayMs(delayMS);
 
-  //Switch statement for face states
+  
+    // Get temperature event and print its value.
+    sensors_event_t event;
+    dht.temperature().getEvent(&event);
+    if (isnan(event.temperature)) {
+      Serial.println("Error reading temperature!");
+    }
+    else {
+      Serial.print("Temperature: ");
+      
+      temp = (double)event.temperature;
+      Serial.print(temp);
+      Serial.println("°C");
+    }
+    // Get humidity event and print its value.
+    dht.humidity().getEvent(&event);
+    if (isnan(event.relative_humidity)) {
+      Serial.println(F("Error reading humidity!"));
+    }
+    else {
+      Serial.print(F("Humidity: "));
+      Serial.print(event.relative_humidity);
+      humidity = (double)(event.relative_humidity);
+      Serial.println(F("%"));
+      Serial.flush();
+    }
+
+    if (temp > 25.0){
+      faceState = HOT;
+      //change face state
+    } else if (humidity > 30.0){
+      faceState = HUMID;  
+    }
+    else {
+      faceState = SMILE;
+    }
+
+//Switch statement for face states
   switch(faceState){
       case HOT:
         //sun emoji
@@ -124,39 +164,14 @@ void setup() {
         write_execute(0x08, 0b00000000); // row 8 LEDS
       break;
   }
-
-
-
-
-    // Get temperature event and print its value.
-    sensors_event_t event;
-    dht.temperature().getEvent(&event);
-    if (isnan(event.temperature)) {
-      Serial.println("Error reading temperature!");
+    if (temp > 25){
+      changeDutyCycle(400 + (temp/80.0) * 100);
+    } else{
+      if(humidity > 30){
+      changeDutyCycle(400 + ((humidity/100.0) *200));
+      } else {
+      changeDutyCycle(0);
+      }
     }
-    else {
-      Serial.print("Temperature: ");
-      Serial.print(event.temperature);
-      Serial.println("°C");
-    }
-    // Get humidity event and print its value.
-    dht.humidity().getEvent(&event);
-    if (isnan(event.relative_humidity)) {
-      Serial.println(F("Error reading humidity!"));
-    }
-    else {
-      Serial.print(F("Humidity: "));
-      Serial.print(event.relative_humidity);
-      Serial.println(F("%"));
-      Serial.flush();
-    }
-
-    if (event.temperature){
-      //change face state
-    }
-    if (event.relative_humidity){
-      //change face state
-    }
-
     
   }
