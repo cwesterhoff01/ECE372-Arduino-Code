@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <timer.h>
 #include <lcd.h>
+#include <SPI.h>
 #define DHTPIN 2     // Digital pin connected to the DHT sensor 
 //Pin #2 on arduino board
 
@@ -31,6 +32,13 @@ volatile emojiType faceState = SMILE;
 
 void setup() {
   
+
+  SPI_MASTER_Init(); // initialize SPI module and set the data rate
+  // initialize 8 x 8 LED array (info from MAX7219 datasheet)
+  write_execute(0x0A, 0x08);  // brightness control
+  write_execute(0x0B, 0x07); // scanning all rows and columns
+  write_execute(0x0C,0x01); // set shutdown register to normal operation (0x01)
+  write_execute(0x0F, 0x00); // display test register - set to normal operation (0x01)
 
 
   initLCD();
@@ -71,21 +79,58 @@ void setup() {
   // Set delay between sensor readings based on sensor details.
   Serial.flush();
   delayMS = sensor.min_delay / 1000;
+
+  switch(faceState){
+      case HOT:
+        //sun emoji
+        write_execute(0x01, 0b10010001); // row 1 LEDS
+        write_execute(0x02, 0b01001010); // row 2 LEDS 
+        write_execute(0x03, 0b00111100); // row 3 LEDS
+        write_execute(0x04, 0b10111110); // row 4 LEDS
+        write_execute(0x05, 0b01111101); // row 5 LEDS
+        write_execute(0x06, 0b00111100); // row 6 LEDS
+        write_execute(0x07, 0b01010010); // row 7 LEDS
+        write_execute(0x08, 0b10001001); // row 8 LEDS
+      break;
+      case HUMID:
+        //raindrop emoji
+        write_execute(0x01, 0b00000000); // row 1 LEDS
+        write_execute(0x02, 0b00010000); // row 2 LEDS 
+        write_execute(0x03, 0b00011000); // row 3 LEDS
+        write_execute(0x04, 0b00111100); // row 4 LEDS
+        write_execute(0x05, 0b01111110); // row 5 LEDS
+        write_execute(0x06, 0b01111110); // row 6 LEDS
+        write_execute(0x07, 0b00111100); // row 7 LEDS
+        write_execute(0x08, 0b00000000); // row 8 LEDS
+      break;
+      case SMILE:
+        //smiley face
+        write_execute(0x01, 0b00000000); // row 1 LEDS
+        write_execute(0x02, 0b00100100); // row 2 LEDS 
+        write_execute(0x03, 0b00100100); // row 3 LEDS
+        write_execute(0x04, 0b00100100); // row 4 LEDS
+        write_execute(0x05, 0b10000001); // row 5 LEDS
+        write_execute(0x06, 0b01000010); // row 6 LEDS
+        write_execute(0x07, 0b00111100); // row 7 LEDS
+        write_execute(0x08, 0b00000000); // row 8 LEDS
+      break;
+    }
+
 }
 
  void loop() {
     // Delay between measurements.
-    delay(delayMS);
+    delayMs(delayMS);
     // Get temperature event and print its value.
     sensors_event_t event;
     dht.temperature().getEvent(&event);
     if (isnan(event.temperature)) {
-      writeString("Error reading temperature!");
+      Serial.println("Error reading temperature!");
     }
     else {
-      writeString("Temperature: ");
-      //writeString(event.temperature);
-      writeString("°C");
+      Serial.print("Temperature: ");
+      Serial.print(event.temperature);
+      Serial.println("°C");
     }
     // Get humidity event and print its value.
     dht.humidity().getEvent(&event);
@@ -100,40 +145,5 @@ void setup() {
     }
 
 
-    //switch picture
-    // switch(emojiType){
-    //   case HOT:
-    //     //sun emoji
-    //     write_execute(0x01, 0b10010001); // row 1 LEDS
-    //     write_execute(0x02, 0b01001010); // row 2 LEDS 
-    //     write_execute(0x03, 0b00111100); // row 3 LEDS
-    //     write_execute(0x04, 0b10111110); // row 4 LEDS
-    //     write_execute(0x05, 0b01111101); // row 5 LEDS
-    //     write_execute(0x06, 0b00111100); // row 6 LEDS
-    //     write_execute(0x07, 0b01010010); // row 7 LEDS
-    //     write_execute(0x08, 0b10001001); // row 8 LEDS
-    //   break;
-    //   case HUMID:
-    //     //raindrop emoji
-    //     write_execute(0x01, 0b00000000); // row 1 LEDS
-    //     write_execute(0x02, 0b00010000); // row 2 LEDS 
-    //     write_execute(0x03, 0b00011000); // row 3 LEDS
-    //     write_execute(0x04, 0b00111100); // row 4 LEDS
-    //     write_execute(0x05, 0b01111110); // row 5 LEDS
-    //     write_execute(0x06, 0b01111110); // row 6 LEDS
-    //     write_execute(0x07, 0b00111100); // row 7 LEDS
-    //     write_execute(0x08, 0b00000000); // row 8 LEDS
-    //   break;
-    //   case SMILE:
-    //     //smiley face
-    //     write_execute(0x01, 0b00000000); // row 1 LEDS
-    //     write_execute(0x02, 0b00100100); // row 2 LEDS 
-    //     write_execute(0x03, 0b00100100); // row 3 LEDS
-    //     write_execute(0x04, 0b00100100); // row 4 LEDS
-    //     write_execute(0x05, 0b10000001); // row 5 LEDS
-    //     write_execute(0x06, 0b01000010); // row 6 LEDS
-    //     write_execute(0x07, 0b00111100); // row 7 LEDS
-    //     write_execute(0x08, 0b00000000); // row 8 LEDS
-    //   break;
-    // }
+    
   }
