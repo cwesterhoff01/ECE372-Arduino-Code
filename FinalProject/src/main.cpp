@@ -80,6 +80,15 @@ void setup() {
   Serial.flush();
   delayMS = sensor.min_delay / 1000;
 
+  
+
+}
+
+ void loop() {
+    // Delay between measurements.
+    delayMs(delayMS);
+
+  //Switch statement for face states
   switch(faceState){
       case HOT:
         //sun emoji
@@ -114,13 +123,11 @@ void setup() {
         write_execute(0x07, 0b00111100); // row 7 LEDS
         write_execute(0x08, 0b00000000); // row 8 LEDS
       break;
-    }
+  }
 
-}
 
- void loop() {
-    // Delay between measurements.
-    delayMs(delayMS);
+
+
     // Get temperature event and print its value.
     sensors_event_t event;
     dht.temperature().getEvent(&event);
@@ -144,6 +151,12 @@ void setup() {
       Serial.flush();
     }
 
+    if (event.temperature){
+      //change face state
+    }
+    if (event.relative_humidity){
+      //change face state
+    }
 
     
   }
