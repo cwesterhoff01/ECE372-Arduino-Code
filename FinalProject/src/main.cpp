@@ -6,6 +6,7 @@
 #include <lcd.h>
 #include <SPI.h>
 #include <pwm.h>
+#include <string.h>
 #define DHTPIN 2     // Digital pin connected to the DHT sensor 
 //Pin #2 on arduino board
 
@@ -42,18 +43,13 @@ void setup() {
   write_execute(0x0C,0x01); // set shutdown register to normal operation (0x01)
   write_execute(0x0F, 0x00); // display test register - set to normal operation (0x01)
 
-
+  //D4 = 22, D5 = 23, D6 = 24, D7 = 25(pin#)
   initLCD();
   sei(); // Enable global interrupts.
-  moveCursor(0, 0); // moves the cursor to 0,0 position
-  writeString("Current mode: ");
-  moveCursor(1, 0);  // moves the cursor to 1,0 position
-
-
+  
 
   Serial.begin(9600);
   // Initialize device.
-  writeString("Is this thing on?");
   dht.begin();
   Serial.println(F("DHTxx Unified Sensor Example"));
   // Print temperature sensor details.
@@ -88,6 +84,7 @@ void setup() {
  void loop() {
    double temp;
    double humidity;
+   char output[50];
     // Delay between measurements.
     delayMs(delayMS);
 
@@ -97,6 +94,14 @@ void setup() {
     dht.temperature().getEvent(&event);
     if (isnan(event.temperature)) {
       Serial.println("Error reading temperature!");
+      moveCursor(0, 0); // moves the cursor to 0,0 position
+      temp = 83.4;
+      int temp1 = temp * 10;
+      sprintf(output, "%d", temp1 / 10);
+      writeString(output);
+      sprintf(output, "%d", temp1 % 10);
+      writeString(".");
+      writeString(output);
     }
     else {
       Serial.print("Temperature: ");
@@ -104,6 +109,7 @@ void setup() {
       temp = (double)event.temperature;
       Serial.print(temp);
       Serial.println("°C");
+
     }
     // Get humidity event and print its value.
     dht.humidity().getEvent(&event);
@@ -116,6 +122,9 @@ void setup() {
       humidity = (double)(event.relative_humidity);
       Serial.println(F("%"));
       Serial.flush();
+
+      moveCursor(1, 0);  // moves the cursor to 1,0 position
+    
     }
 
     if (temp > 25.0){
