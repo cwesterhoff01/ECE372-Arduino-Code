@@ -1,3 +1,19 @@
+/*
+Lab Section B Group #1
+Names: Elizabeth Connacher, Jesse Koontz, Chris Westerhoff, Jason Zhang
+Final Project: Optimized cooling system
+*/
+
+/*
+Requirements:
+1. Status of temperature and humidity using 8x8 LED Matrix using SPI serial communication
+2. Fans activate and deactivate at certain temperature
+3. Display temperature and humidity on LCD screen
+4. Fans will spin faster the higher the temperature and humidity
+
+*/
+
+
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
 #include <DHT_U.h>
@@ -34,6 +50,7 @@ volatile emojiType faceState = SMILE;
 
 void setup() {
   
+  //Initialize PWM timer
   initPWMTimer3();
 
   SPI_MASTER_Init(); // initialize SPI module and set the data rate
@@ -44,12 +61,13 @@ void setup() {
   write_execute(0x0F, 0x00); // display test register - set to normal operation (0x01)
 
   //D4 = 22, D5 = 23, D6 = 24, D7 = 25(pin#)
+  //Initialize LCD
   initLCD();
   sei(); // Enable global interrupts.
   
 
   Serial.begin(9600);
-  // Initialize device.
+  // Initialize DHT22 device.
   dht.begin();
   Serial.println(F("DHTxx Unified Sensor Example"));
   // Print temperature sensor details.
@@ -97,7 +115,7 @@ void setup() {
     }
     else {
       Serial.print("Temperature: ");
-      
+      //Converts double to a string to be able to print on to LCD
       temp = (double)event.temperature;
       Serial.print(temp);
       Serial.println("°C");
@@ -124,6 +142,7 @@ void setup() {
       Serial.println(F("%"));
       Serial.flush();
 
+      //Converts double to a string to be able to print on to LCD
       moveCursor(1, 0);  // moves the cursor to 1,0 position
       int temp2 = humidity * 10;
       writeString("Humidity: ");
@@ -134,7 +153,8 @@ void setup() {
       writeString(output);
       writeString("%");
     }
-
+    
+    //Belowo are conditions to switch to certain states
     if (temp > 25.0){
       faceState = HOT;
       //change face state
@@ -181,8 +201,11 @@ void setup() {
         write_execute(0x08, 0b00000000); // row 8 LEDS
       break;
   }
+
+  //Below deals with the motor speed depending on temperature
   int tempDuty = 0;
   int humDuty = 0;
+    //Allows motor to speed up when more hot and/or more humid
     if (temp > 25){
       tempDuty = (300 + (temp/80.0) * 723);
     } else{
